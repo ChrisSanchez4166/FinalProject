@@ -4,6 +4,30 @@ const jwt = require('jsonwebtoken');
 const exjwt = require('express-jwt');
 const bodyParser = require('body-parser');
 const path = require('path');
+const mysql = require('mysql');
+
+
+var connection = mysql.createConnection({
+    host: 'sql9.freemysqlhosting.net',
+    user: 'sql9378996',
+    password: 'VANDLpmvpw',
+    database: 'sql9378996'
+});
+
+// app.get('/', async (req, res) => {
+//     connection.connect();
+//     connection.query('SELECT * FROM user', function (error, results, fields) {
+//         connection.end();
+//         if (error) throw error;
+//         res.json(results);
+//         console.log("res is: ", results[11].id);
+//         console.log("res is: ", results[11].password);
+//     });
+// })
+
+
+
+
 
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000/');
@@ -14,7 +38,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 
-const PORT = 3000;
+const PORT = process.env.port || 3000;
 const secretKey = "secret key!";
 const jwtMW = exjwt({
     secret: secretKey,
@@ -56,19 +80,21 @@ let users = [
 
 
 
-
+// add hashing!
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
 
-    for (user of users){
-        if (username == user.username && password == user.password){
-            let token = jwt.sign({ id:user.id, username: user.username}, secretKey, { expiresIn: '7d' });
+    var sql = "SELECT * FROM user WHERE username = '" + username +"'";
+    connection.query(sql, function(err, results, fields) {
+        if (err) throw err
+
+        if (password == results[0].password){
+            let token = jwt.sign({ id:results[0].ID, username: username}, secretKey, { expiresIn: '7d' });
             res.json({
                 success: true,
                 err: null,
                 tokenValue: token
             });
-            break;
         }
         else {
             res.status(401).json({
@@ -77,7 +103,31 @@ app.post('/api/login', (req, res) => {
                 err: "Username or Password is incorrect"
             });
         }
-    }
+    })
+});
+
+// add token
+// add hashing!
+app.post('/api/register', (req, res) => {
+    console.log("Testing")
+    const { username, password } = req.body;
+
+    var sql = "SELECT * FROM user WHERE username = '" + username +"'";
+    connection.query(sql, function(err, results, fields) {
+        if (err) throw err
+        
+        // console.log("results: ", results.length);
+        if (results.length == 0){
+            var sql = "insert into user values(null, '"+ username +"', '"+ password + "')";
+            connection.query(sql, function(err) {
+                if (err) throw err
+            })
+        }
+        else {
+            console.log("Error! Username already exists");
+        }
+
+    })
 
 });
 

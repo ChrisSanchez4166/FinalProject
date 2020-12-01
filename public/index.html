@@ -15,8 +15,6 @@
 
         <h1 class="row">Login</h1>
 
-        <h2 class="row"></h2>
-
         <main>
             <div class="row">
                 <label for="username">Username</label>
@@ -30,7 +28,23 @@
 
             <div>
                 <button onclick="login()">Login</button>
-                <button onclick="loginSettings()">Settings</button>
+            </div>
+            
+            
+            <h2 class="row">Register</h2>
+
+            <div class="row">
+                <label for="username">Username</label>
+                <input type="text" name="usernameR" id="usernameR">
+            </div>
+
+            <div class="row">
+                <label for="password">Password</label>
+                <input type="password" name="passwordR" id="passwordR">
+            </div>
+
+            <div>
+                <button onclick="register()">Register</button>
             </div>
         </main>
 
@@ -39,6 +53,8 @@
                 <canvas id="myChart" width="400" height="400"></canvas>
             </p>
         </div>
+
+        <h3 class="row"></h3>
 
 
 
@@ -57,19 +73,18 @@
             };
             axios.post('/api/login', data)
             .then(res => {
-                console.log(res);
+                //console.log(res);
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
                 if (res && res.data && res.data.success) {
                     token = res.data.tokenValue;
-                    // console.log('token: ', res.data);
                     getDashboard();
                 }
             });
         }
 
         function getDashboard(){
-            console.log('test0');
+            //console.log('test0');
             axios.get('/api/dashboard', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -79,6 +94,7 @@
                     
                     document.querySelector('h1.row').innerHTML = 'Dashboards';
                     document.querySelector("h2.row").innerHTML = "chart";
+                    document.querySelector("h3.row").innerHTML = "";
                     document.querySelector('main').innerHTML = res.data.myContent;
                     getBudget();
                     history.pushState(null, 'dashboard', 'http://localhost:3000/api/dashboard');
@@ -87,13 +103,16 @@
         }
 
 
-
-
-
-
-
-
-
+        function register(){
+            const data = {
+                username: document.getElementById('usernameR').value,
+                password: document.getElementById('passwordR').value,
+            };
+            axios.post('/api/register', data)
+            .then(res => {
+            });
+            document.querySelector("h3.row").innerHTML = "Success!";
+        }
 
 
 
@@ -108,7 +127,7 @@
             };
             axios.post('/api/login', data)
             .then(res => {
-                console.log(res);
+                //console.log(res);
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
                 if (res && res.data && res.data.success) {
@@ -120,7 +139,7 @@
         }
 
         function getSettings(){
-            console.log('test0');
+            //console.log('test0');
             axios.get('/api/settings', {
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -159,7 +178,7 @@
         function getBudget(){
             axios.get('/budget')
             .then(function (res){
-                console.log("res: ", res);
+                //console.log("res: ", res);
                 for (var i = 0; i < res.data.myBudget.length; i++){
                     dataSource.datasets[0].data[i] = res.data.myBudget[i].budget;
                     dataSource.labels[i] = res.data.myBudget[i].title;
