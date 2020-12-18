@@ -6,7 +6,6 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const mysql = require('mysql');
 
-
 var connection = mysql.createConnection({
     host: 'sql9.freemysqlhosting.net',
     user: 'sql9378996',
@@ -14,19 +13,7 @@ var connection = mysql.createConnection({
     database: 'sql9378996'
 });
 
-// app.get('/', async (req, res) => {
-//     connection.connect();
-//     connection.query('SELECT * FROM user', function (error, results, fields) {
-//         connection.end();
-//         if (error) throw error;
-//         res.json(results);
-//         console.log("res is: ", results[11].id);
-//         console.log("res is: ", results[11].password);
-//     });
-// })
-
-
-
+app.use(express.static(__dirname + '/public'));
 
 
 app.use((req, res, next) => {
@@ -44,81 +31,60 @@ const jwtMW = exjwt({
     secret: secretKey,
     algorithms: ['HS256']
 });
+var theUser;
 
 
-const budget = {
-    myBudget: [
-    {
-        title: 'Eat out',
-        budget: 30
-    },
-    {
-        title: 'Rent',
-        budget: 10
-    },
-    {
-        title: 'groceries',
-        budget: 60
-    },
-    ]
-};
-
-
-let users = [
-    {
-        id: 1,
-        username: 'chris',
-        password: 'sanchez'
-    },
-
-    {
-        id: 2,
-        username: 'pie',
-        password: 'test'
-    }
-];
-
-
-
-// add hashing!
 app.post('/api/login', (req, res) => {
     const { username, password } = req.body;
-
-    var sql = "SELECT * FROM user WHERE username = '" + username +"'";
-    connection.query(sql, function(err, results, fields) {
-        if (err) throw err
-
-        if (password == results[0].password){
-            let token = jwt.sign({ id:results[0].ID, username: username}, secretKey, { expiresIn: '7d' });
-            res.json({
-                success: true,
-                err: null,
-                tokenValue: token
-            });
-        }
-        else {
-            res.status(401).json({
-                success: false,
-                tokenValue: null,
-                err: "Username or Password is incorrect"
-            });
-        }
-    })
-});
-
-// add token
-// add hashing!
-app.post('/api/register', (req, res) => {
-    console.log("Testing")
-    const { username, password } = req.body;
+    var hashedPW = stringToHash(password);
 
     var sql = "SELECT * FROM user WHERE username = '" + username +"'";
     connection.query(sql, function(err, results, fields) {
         if (err) throw err
         
-        // console.log("results: ", results.length);
         if (results.length == 0){
-            var sql = "insert into user values(null, '"+ username +"', '"+ password + "')";
+            console.log("No Such Username Exists")
+        }
+        else{
+            if (hashedPW == results[0].password){
+                let token = jwt.sign({ id:results[0].ID, username: username}, secretKey, { expiresIn: '7d' });
+                res.json({
+                    success: true,
+                    err: null,
+                    tokenValue: token
+                });
+                theUser = username;
+                console.log("Login Successful")
+            }
+            else {
+                res.status(401).json({
+                    success: false,
+                    tokenValue: null,
+                    err: "Username or Password is incorrect"
+                });
+                console.log("Incorrect Password")
+            }
+        }
+    })
+});
+
+
+app.post('/api/register', (req, res) => {
+    const { username, password } = req.body;
+    var hashedPW = stringToHash(password);
+
+    var sql = "SELECT * FROM user WHERE username = '" + username +"'";
+    connection.query(sql, function(err, results) {
+        if (err) throw err
+        
+        if (results.length == 0){
+            var sql = "insert into user values(null, '"+ username +"', '"+ hashedPW + "')";
+            connection.query(sql, function(err) {
+                if (err) throw err
+            })
+
+
+            var sql = "CREATE TABLE " + username + "(FieldName VARCHAR(255), FieldValue DOUBLE(10,2));";
             connection.query(sql, function(err) {
                 if (err) throw err
             })
@@ -126,30 +92,44 @@ app.post('/api/register', (req, res) => {
         else {
             console.log("Error! Username already exists");
         }
-
     })
+});
 
+
+app.post('/api/addcharge', (req, res) => {
+    const { name, value } = req.body;
+
+    var sql = "INSERT INTO " + theUser + "(FieldName, FieldValue) VALUES ('" + name + "', " + value + ");";
+    connection.query(sql, function(err, results) {
+        if (err) throw err
+    })
+});
+
+app.post('/api/deletecharge', (req, res) => {
+    const {name} = req.body;
+    console.log("name: ", name);
+    var sql = "DELETE FROM " + theUser + " WHERE '" + name + "' = FieldName;";
+    console.log(sql);
+    connection.query(sql, function(err, results) {
+        if (err) throw err
+    })
 });
 
 
 app.get('/budget', (req, res) => {
-    res.json(budget);
+    var sql = "SELECT * FROM " + theUser;
+    connection.query(sql, function(err, results) {
+        if (err) throw err
+        res.json(results);
+    })
 });
 
 
 app.get('/api/dashboard', jwtMW, (req, res) => {
     res.json({
         success: true,
-        myContent: 'Secret Content for the initiated'
+        myContent: 'Hello! This app helps you manage your budget. First, enter your monthly budget. Then enter a budget category and its monthly cost into the add field and add charge areas respectively. Press create to add that record. Press graph to view your budget distribution.'
     });
-});
-
-app.get('/api/settings', jwtMW, (req, res) => {
-    res.json({
-        success: true,
-        myContent: 'Secret Content for the initiated'
-    });
-    
 });
 
 
@@ -176,17 +156,20 @@ app.listen(PORT, () => {
     console.log(`Serving on port ${PORT}`);
 });
 
-
-
-
-
-
-
-
-
-
-
-
+// hash to 32 bit number 
+function stringToHash(string) { 
+                  
+    var hash = 0; 
+      
+    if (string.length == 0) return hash; 
+      
+    for (i = 0; i < string.length; i++) { 
+        char = string.charCodeAt(i); 
+        hash = ((hash << 5) - hash) + char; 
+        hash = hash & hash;
+    }
+    return hash; 
+} 
 
 
 

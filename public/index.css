@@ -1,0 +1,19 @@
+body {
+    background-color: #DEB887;
+}
+
+.centerButton {
+    margin: 0;
+    position: absolute;
+    padding: 15px 32px;
+    left: 50%;
+    background-color: green;
+  }
+
+  .link{
+    position: absolute;
+    right: 0px;
+    padding: 10px;
+  }
+
+  

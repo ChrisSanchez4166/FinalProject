@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="index.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js" integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ==" crossorigin="anonymous"></script>
 
 
@@ -11,52 +12,33 @@
 </head>
 <body>
 
-    <div class="container-fluid">
+    <div class="container-fluid" id="stuff">
 
-        <h1 class="row">Login</h1>
+        <h1 class="left"><b>Login</b></h1>
 
         <main>
-            <div class="row">
-                <label for="username">Username</label>
+            <div class="left">
+                <label for="username">Username: </label>
                 <input type="text" name="username" id="username">
-            </div>
-
-            <div class="row">
-                <label for="password">Password</label>
+                <label for="password">   Password: </label>
                 <input type="password" name="password" id="password">
-            </div>
-
-            <div>
                 <button onclick="login()">Login</button>
             </div>
+            <br>
             
-            
-            <h2 class="row">Register</h2>
+            <h2 class="left"><b>Register</b></h2>
 
-            <div class="row">
-                <label for="username">Username</label>
+            <div class="left">
+                <label for="username">Username: </label>
                 <input type="text" name="usernameR" id="usernameR">
-            </div>
-
-            <div class="row">
-                <label for="password">Password</label>
+                <label for="password">   Password: </label>
                 <input type="password" name="passwordR" id="passwordR">
-            </div>
-
-            <div>
                 <button onclick="register()">Register</button>
             </div>
+
         </main>
 
-        <div>
-            <p>
-                <canvas id="myChart" width="400" height="400"></canvas>
-            </p>
-        </div>
-
-        <h3 class="row"></h3>
-
-
+        <h3></h3>
 
     <div>
 
@@ -66,6 +48,9 @@
 
     <script>
         var token = '';
+        var theUser;
+        var success = false;
+
         function login(){
             const data = {
                 username: document.getElementById('username').value,
@@ -73,7 +58,7 @@
             };
             axios.post('/api/login', data)
             .then(res => {
-                //console.log(res);
+                theUser = document.getElementById('username').value
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
                 if (res && res.data && res.data.success) {
@@ -81,22 +66,158 @@
                     getDashboard();
                 }
             });
+            if (!success){
+                document.querySelector("h3").innerHTML = "Login Unsuccessful";
+            }
         }
 
         function getDashboard(){
-            //console.log('test0');
             axios.get('/api/dashboard', {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
             }).then(res => {
                 if (res && res.data && res.data.success) {
-                    
-                    document.querySelector('h1.row').innerHTML = 'Dashboards';
-                    document.querySelector("h2.row").innerHTML = "chart";
-                    document.querySelector("h3.row").innerHTML = "";
+                    document.querySelector('h1').innerHTML = 'Dashboards';
+                    document.querySelector("h2").innerHTML = "chart";
+                    document.querySelector("h3").innerHTML = "Welcome " + theUser + "!";
                     document.querySelector('main').innerHTML = res.data.myContent;
-                    getBudget();
+
+                    var x = document.createElement("a");
+                    x.setAttribute('href',"http://localhost:3000/");
+                    x.innerHTML = "Log Out";
+                    x.className = "link"
+                    document.getElementsByTagName('body')[0].appendChild(x);
+
+                    x = document.createElement("label");
+                    x.id = "budgetlabel";
+                    x.innerHTML = "Enter your total budget: "; 
+                    document.body.appendChild(x);
+
+                    x = document.createElement("input");
+                    x.id = "budgetValue";
+                    x.type = "text"; 
+                    document.body.appendChild(x);
+
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    
+                    x = document.createElement("label");
+                    x.id = "fieldlabel";
+                    x.innerHTML = "Add field: "; 
+                    document.body.appendChild(x);
+
+                    x = document.createElement("input");
+                    x.id = "fieldName";
+                    x.type = "text"; 
+                    document.body.appendChild(x);
+
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+
+                    x = document.createElement("label");
+                    x.id = "valuelabel";
+                    x.innerHTML = "  Add charge: "; 
+                    document.body.appendChild(x);
+
+                    x = document.createElement("input");
+                    x.id = "fieldValue";
+                    x.type = "text"; 
+                    document.body.appendChild(x);
+
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+
+                    x = document.createElement("button");
+                    x.id = "createButton";
+                    x.innerHTML = "create";
+                    x.onclick = function(){
+                        const data = {
+                            name: document.getElementById('fieldName').value,
+                            value: document.getElementById('fieldValue').value,
+                        };
+                        axios.post('/api/addcharge', data).then(res => {});
+                    };
+                    document.body.appendChild(x);
+
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+
+                    x = document.createElement("label");
+                    x.id = "deletelabel";
+                    x.className = "right";
+                    x.innerHTML = "Delete field: "; 
+                    document.body.appendChild(x);
+
+                    x = document.createElement("input");
+                    x.id = "deleteName";
+                    x.className = "right";
+                    x.type = "deletetext"; 
+                    document.body.appendChild(x);
+                    
+
+                    x = document.createElement("button");
+                    x.id = "deleteButton";
+                    x.innerHTML = "delete";
+                    x.onclick = function(){
+                        const data = {
+                            name: document.getElementById('deleteName').value
+                        };
+                        axios.post('/api/deletecharge', data).then(res => {});
+                    };
+                    document.body.appendChild(x);
+
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+
+                    x = document.createElement("button");
+                    x.id = "creategraph";
+                    x.innerHTML = "graph";
+                    x.className = "centerButton";
+                    x.onclick = function(){
+                        y = document.createElement("canvas");
+                        y.id = "myBarChart"
+                        y.height = 100;
+                        y.length = 100;
+                        document.body.appendChild(y);
+
+                        y = document.createElement("canvas");
+                        y.id = "myPieChart"
+                        y.height = 100;
+                        y.length = 100;
+                        document.body.appendChild(y);
+
+                        y = document.createElement("canvas");
+                        y.id = "myRadarChart"
+                        y.height = 100;
+                        y.length = 100;
+                        document.body.appendChild(y);
+
+                        getBudget();
+                    };
+                    document.body.appendChild(x);
+
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    x = document.createElement("BR");
+                    document.body.appendChild(x);
+                    
                     history.pushState(null, 'dashboard', 'http://localhost:3000/api/dashboard');
                 }
             });
@@ -114,53 +235,31 @@
             document.querySelector("h3.row").innerHTML = "Success!";
         }
 
-
-
-
-
-
-
-        function loginSettings(){
-            const data = {
-                username: document.getElementById('username').value,
-                password: document.getElementById('password').value,
-            };
-            axios.post('/api/login', data)
-            .then(res => {
-                //console.log(res);
-                document.getElementById('username').value = '';
-                document.getElementById('password').value = '';
-                if (res && res.data && res.data.success) {
-                    token = res.data.tokenValue;
-                    // console.log('token: ', res.data);
-                    getSettings();
-                }
-            });
-        }
-
-        function getSettings(){
-            //console.log('test0');
-            axios.get('/api/settings', {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            }).then(res => {
-                if (res && res.data && res.data.success) {
-                    document.querySelector('h1.row').innerHTML = 'Settings';
-                    document.querySelector('main').innerHTML = res.data.myContent;
-                    history.pushState(null, 'settings', 'http://localhost:3000/api/settings');
-                }
-            });
-        }
-
         var dataSource = {
             datasets: [
                 {
                     data: [],
                     backgroundColor: [
-                        '#ffcd56',
-                        '#ff6384',
-                        '#36a2eb'
+                        '#DC143C',
+                        '#006400',
+                        '#0000FF',
+                        '#FFD700',
+                        '#4B0082',
+                        '#8B0000',
+                        '#000080',
+                        '#7FFFD4',
+                        '#556B2F',
+                        '#FF4500',
+                        '#000000',
+                        '#800080',
+                        '#A52A2A',
+                        '#7FFF00',
+                        '#D2691E',
+                        '#FA8072',
+                        '#8FBC8F',
+                        '#9400D3',
+                        '#008080',
+                        '#00FFFF'
                     ],
                 }
             ],
@@ -168,29 +267,62 @@
         };
 
         function createChart() {
-            var ctx = document.getElementById('myChart').getContext('2d');
+            var options = {
+                scales: {
+                    yAxes: [{
+                        display: true,
+                        ticks: {
+                            suggestedMin: 0,    
+                        }
+                    }]
+                }
+            };
+
+            var x;
+
+            ctx = document.getElementById('myBarChart').getContext('2d');
+            var myBarChart = new Chart(ctx, {
+                type: 'bar',
+                data: dataSource,
+                options: options
+            });
+
+            var ctx = document.getElementById('myPieChart').getContext('2d');
             var myPieChart = new Chart(ctx, {
                 type: 'pie',
                 data: dataSource
             });
-        }
-
-        function getBudget(){
-            axios.get('/budget')
-            .then(function (res){
-                //console.log("res: ", res);
-                for (var i = 0; i < res.data.myBudget.length; i++){
-                    dataSource.datasets[0].data[i] = res.data.myBudget[i].budget;
-                    dataSource.labels[i] = res.data.myBudget[i].title;
-                }
-                // console.log("data: ", res.data.myBudget.length);
-                createChart();
+            
+            ctx = document.getElementById('myRadarChart').getContext('2d');
+            var myRadarChart = new Chart(ctx, {
+                type: 'radar',
+                data: dataSource,
             });
         }
 
+        function getBudget(){
+            budget = document.getElementById('budgetValue').value
+            totalSpent = 0;
 
+            axios.get('/budget')
+            .then(function (res){
+                theLength = res.data.length;
+                for (var i = 0; i < theLength; i++){
+                    dataSource.datasets[0].data[i] = res.data[i].FieldValue;
+                    dataSource.labels[i] = res.data[i].FieldName;
+                    totalSpent = totalSpent + res.data[i].FieldValue
+                }
+                if ((budget - totalSpent) > 0) {
+                    dataSource.datasets[0].data[theLength] = budget - totalSpent
+                }
+                else {
+                    dataSource.datasets[0].data[theLength] = 0
+                }
+                dataSource.labels[theLength] = "Savings";
 
-
+                createChart();
+            });
+        }
         
     </script>
     
