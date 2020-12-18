@@ -88,8 +88,12 @@ app.post('/api/register', (req, res) => {
             connection.query(sql, function(err) {
                 if (err) throw err
             })
+
+            res.json(true);
+            console.log("Registered");
         }
         else {
+            res.json(false);
             console.log("Error! Username already exists");
         }
     })
@@ -107,12 +111,11 @@ app.post('/api/addcharge', (req, res) => {
 
 app.post('/api/deletecharge', (req, res) => {
     const {name} = req.body;
-    console.log("name: ", name);
     var sql = "DELETE FROM " + theUser + " WHERE '" + name + "' = FieldName;";
-    console.log(sql);
     connection.query(sql, function(err, results) {
         if (err) throw err
     })
+    console.log("Deleted", name);
 });
 
 

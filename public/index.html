@@ -51,6 +51,7 @@
         var success = false;
 
         function login(){
+            state = false;
             const data = {
                 username: document.getElementById('username').value,
                 password: document.getElementById('password').value,
@@ -61,6 +62,7 @@
                 document.getElementById('username').value = '';
                 document.getElementById('password').value = '';
                 if (res && res.data && res.data.success) {
+                    state = true;
                     token = res.data.tokenValue;
                     getDashboard();
                 }
@@ -68,6 +70,26 @@
             if (!success){
                 document.querySelector("h3").innerHTML = "Login Unsuccessful";
             }
+            else{
+                document.querySelector("h3").innerHTML = "Logging in";
+            }
+        }
+
+        function register(){
+            var state;
+            const data = {
+                username: document.getElementById('usernameR').value,
+                password: document.getElementById('passwordR').value,
+            };
+            axios.post('/api/register', data)
+            .then(res => {
+                if(res.data){
+                    document.querySelector("h3").innerHTML = "Success!";
+                }
+                else{
+                    document.querySelector("h3").innerHTML = "Error! Username already exists!";
+                }
+            });
         }
 
         function getDashboard(){
@@ -222,18 +244,6 @@
             });
         }
 
-
-        function register(){
-            const data = {
-                username: document.getElementById('usernameR').value,
-                password: document.getElementById('passwordR').value,
-            };
-            axios.post('/api/register', data)
-            .then(res => {
-            });
-            document.querySelector("h3").innerHTML = "Success!";
-        }
-
         var dataSource = {
             datasets: [
                 {
@@ -277,16 +287,14 @@
                 }
             };
 
-            var x;
-
-            ctx = document.getElementById('myBarChart').getContext('2d');
+            var ctx = document.getElementById('myBarChart').getContext('2d');
             var myBarChart = new Chart(ctx, {
                 type: 'bar',
                 data: dataSource,
                 options: options
             });
 
-            var ctx = document.getElementById('myPieChart').getContext('2d');
+            ctx = document.getElementById('myPieChart').getContext('2d');
             var myPieChart = new Chart(ctx, {
                 type: 'pie',
                 data: dataSource
@@ -300,6 +308,8 @@
         }
 
         function getBudget(){
+            dataSource.datasets[0].data = [];
+            dataSource.labels = [];
             budget = document.getElementById('budgetValue').value
             totalSpent = 0;
 
