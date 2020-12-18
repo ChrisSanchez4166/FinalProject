@@ -17,7 +17,7 @@ app.use(express.static(__dirname + '/public'));
 
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://167.172.141.117/');
+    res.setHeader('Access-Control-Allow-Origin', '167.172.141.117/');
     res.setHeader('Access-Control-Allow-Headers', 'Content-type,Authorization');
     next();
 });
