@@ -69,7 +69,7 @@ app.post('/api/login', (req, res) => {
 });
 
 
-app.post('/api/register', (req, res) => {
+app.post('/api/register', (req) => {
     const { username, password } = req.body;
     var hashedPW = stringToHash(password);
 
@@ -96,7 +96,7 @@ app.post('/api/register', (req, res) => {
 });
 
 
-app.post('/api/addcharge', (req, res) => {
+app.post('/api/addcharge', (req) => {
     const { name, value } = req.body;
 
     var sql = "INSERT INTO " + theUser + "(FieldName, FieldValue) VALUES ('" + name + "', " + value + ");";
@@ -105,7 +105,7 @@ app.post('/api/addcharge', (req, res) => {
     })
 });
 
-app.post('/api/deletecharge', (req, res) => {
+app.post('/api/deletecharge', (req) => {
     const {name} = req.body;
     console.log("name: ", name);
     var sql = "DELETE FROM " + theUser + " WHERE '" + name + "' = FieldName;";
@@ -116,7 +116,7 @@ app.post('/api/deletecharge', (req, res) => {
 });
 
 
-app.get('/budget', (req, res) => {
+app.get('/budget', (res) => {
     var sql = "SELECT * FROM " + theUser;
     connection.query(sql, function(err, results) {
         if (err) throw err
@@ -125,7 +125,7 @@ app.get('/budget', (req, res) => {
 });
 
 
-app.get('/api/dashboard', jwtMW, (req, res) => {
+app.get('/api/dashboard', jwtMW, (res) => {
     res.json({
         success: true,
         myContent: 'Hello! This app helps you manage your budget. First, enter your monthly budget. Then enter a budget category and its monthly cost into the add field and add charge areas respectively. Press create to add that record. Press graph to view your budget distribution.'
@@ -133,12 +133,12 @@ app.get('/api/dashboard', jwtMW, (req, res) => {
 });
 
 
-app.get('/', (req, res) => {
+app.get('/', (res) => {
     res.sendFile(path.join(__dirname, './public/index.html'));
 });
 
 
-app.use(function (err, req, res, next) {
+app.use(function (err, res, next) {
     if(err.name === 'UnauthorizedError') {
         res.status(401).json({
             success: false,
