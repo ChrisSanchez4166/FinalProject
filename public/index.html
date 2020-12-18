@@ -7,7 +7,6 @@
     <link rel="stylesheet" type="text/css" href="index.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.0/axios.min.js" integrity="sha512-DZqqY3PiOvTP9HkjIWgjO6ouCbq+dxqWoJZ/Q+zPYNHmlnI2dQnbJ5bxAHpAMw+LXRm4D72EIRXzvcHQtE8/VQ==" crossorigin="anonymous"></script>
 
-
     <title>Document</title>
 </head>
 <body>
@@ -84,7 +83,7 @@
                     document.querySelector('main').innerHTML = res.data.myContent;
 
                     var x = document.createElement("a");
-                    x.setAttribute('href',"167.172.141.117");
+                    x.setAttribute('href',"http://167.172.141.117:3000/");
                     x.innerHTML = "Log Out";
                     x.className = "link"
                     document.getElementsByTagName('body')[0].appendChild(x);
@@ -218,7 +217,7 @@
                     x = document.createElement("BR");
                     document.body.appendChild(x);
                     
-                    history.pushState(null, 'dashboard', 'http://http://167.172.141.117/api/dashboard');
+                    history.pushState(null, 'dashboard', 'http://167.172.141.117/api/dashboard');
                 }
             });
         }
